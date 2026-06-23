@@ -1,6 +1,7 @@
 # BobaWatermark
 
-![Screenshot](screenshot.png)
+![BobaWatermark Demo with Text](GIF/bobawatermark1.gif)
+![BobaWatermark Demo with Logo](GIF/bobawatermark2.gif)
 
 🇩🇪 **Deutsch** | 🇬🇧 [English](#english)
 
