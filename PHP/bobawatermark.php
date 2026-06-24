@@ -1,5 +1,13 @@
 <?php
-// wasserzeichen.php – BobaWatermark v1.0.0
+/**
+ * BobaWatermark – Wasserzeichen-Generator mit Text oder Logo
+ *
+ * Entwickler:        Sven Owsianowski
+ * Entwicklerprofil:  https://bobaro.de/page.php?p=ueber-den-entwickler
+ * Entwickelt für:    Bobaro – Bloggen ohne Ballast | www.bobaro.de
+ * Vorschau:          https://
+ * Jahr:              2026
+ */
 
 // ── AJAX: Logo-Wasserzeichen löschen ─────────────────────────────────────────
 if (!empty($_SERVER['HTTP_X_WZ_LOGO_DELETE']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -37,18 +45,9 @@ if (!empty($_SERVER['HTTP_X_WZ_LOGO_UPLOAD']) && $_SERVER['REQUEST_METHOD'] === 
     exit;
 }
 
-$settingsFile = __DIR__ . '/_private/settings.json';
 $primaryColor = '#1EA3F2';
-$settings = [];
-if (is_file($settingsFile)) {
-    $data = json_decode(file_get_contents($settingsFile), true);
-    if (is_array($data)) {
-        $settings = $data;
-        $primaryColor = $data['userColorPri'] ?? '#1EA3F2';
-    }
-}
-date_default_timezone_set($settings['timezone'] ?? 'Europe/Berlin');
-$appMode = $settings['appMode'] ?? 'light';
+date_default_timezone_set('Europe/Berlin');
+$appMode = 'light';
 
 // Vorhandenes Logo prüfen
 $wzLogoFile    = __DIR__ . '/medien/wasserzeichen/wz_logo.png';
@@ -71,7 +70,6 @@ $wzLogoUrl     = $wzLogoExists ? ('medien/wasserzeichen/wz_logo.png?t=' . filemt
     <title>BobaWatermark</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <?php if (function_exists('renderColorVars')) { include_once 'helpers.php'; renderColorVars($settings); } ?>
     <style>
         :root {
             --wz-primary: <?php echo $primaryColor; ?>;
@@ -79,14 +77,14 @@ $wzLogoUrl     = $wzLogoExists ? ('medien/wasserzeichen/wz_logo.png?t=' . filemt
         }
 
         body {
-            background: var(--bobaro-bg, var(--bs-body-bg));
+            background: var(--bs-body-bg);
             min-height: 100vh;
             font-size: .92rem;
         }
 
         /* ── Navbar ── */
         .wz-navbar {
-            background: var(--bobaro-header, var(--bs-body-bg));
+            background: var(--bs-body-bg);
             border-bottom: 1px solid var(--bs-border-color);
         }
 
@@ -102,7 +100,7 @@ $wzLogoUrl     = $wzLogoExists ? ('medien/wasserzeichen/wz_logo.png?t=' . filemt
             width: 280px;
             min-width: 280px;
             border-right: 1px solid var(--bs-border-color);
-            background: var(--bobaro-card, var(--bs-body-bg));
+            background: var(--bs-body-bg);
             overflow-y: auto;
             padding: 1.25rem;
             display: flex;
@@ -448,7 +446,7 @@ $wzLogoUrl     = $wzLogoExists ? ('medien/wasserzeichen/wz_logo.png?t=' . filemt
             <div class="mb-3">
                 <div class="wz-section-label">Wasserzeichen-Text</div>
                 <input type="text" id="wzText" class="form-control form-control-sm rounded-3"
-                       value="© <?php echo date('Y') . ' ' . htmlspecialchars($settings['appName'] ?? 'Mein Blog'); ?>" placeholder="Wasserzeichen-Text">
+                       value="© <?php echo date('Y'); ?> Sven Owsianowski" placeholder="Wasserzeichen-Text">
             </div>
 
             <!-- Schrift -->
@@ -603,7 +601,7 @@ const state = {
     rotation:     0,
     fontSize:     36,
     opacity:      0.7,
-    text:         '© <?php echo date("Y") . " " . addslashes($settings["appName"] ?? "Mein Blog"); ?>',
+    text:         '© <?php echo date("Y"); ?> Sven Owsianowski',
     color:        '#ffffff',
     font:         'Arial',
     filename:     'wasserzeichen',
@@ -953,7 +951,7 @@ function wzLogoVomServerLaden(url) {
 // ── Logo vom Server löschen ───────────────────────────────────────────────────
 function wzLogoLoeschen() {
     if (!confirm('Logo von medien/wasserzeichen/ löschen?')) return;
-    fetch('wasserzeichen.php', { method: 'POST', headers: { 'X-WZ-Logo-Delete': '1' } })
+    fetch('bobawatermark.php', { method: 'POST', headers: { 'X-WZ-Logo-Delete': '1' } })
         .then(r => r.json())
         .then(d => {
             if (d.ok) {
@@ -1004,7 +1002,7 @@ function loadLogoFile(file) {
     status.style.color = 'var(--bs-secondary-color)';
     const fd = new FormData();
     fd.append('wz_logo', file);
-    fetch('wasserzeichen.php', { method: 'POST', headers: { 'X-WZ-Logo-Upload': '1' }, body: fd })
+    fetch('bobawatermark.php', { method: 'POST', headers: { 'X-WZ-Logo-Upload': '1' }, body: fd })
         .then(r => r.json())
         .then(d => {
             status.textContent = d.ok ? '✓ Gespeichert in medien/wasserzeichen/' : '⚠ ' + (d.error || 'Fehler');
